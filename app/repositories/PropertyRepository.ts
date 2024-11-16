@@ -80,6 +80,34 @@ export class PropertyRepository {
     ]);
   }
 
+  async getAllFilterOptions() {
+    const types = await Property.distinct("type");
+
+    const services = await Property.aggregate([
+      { $unwind: "$services" },
+      {
+        $group: {
+          _id: "$services.name", // Group by service name
+          id: { $first: "$services.id" }, // Get the `id` for sorting
+        },
+      },
+      {
+        $project: {
+          serviceName: "$_id", // Include the service name
+          id: 1, // Include the id for sorting purposes
+          _id: 0,
+        },
+      },
+
+      { $sort: { id: 1 } },
+    ]).then((results) => results.map((result) => result.serviceName));
+
+    return {
+      types: types.filter(Boolean),
+      services: services.filter(Boolean),
+    };
+  }
+
   async getAllProperties(limit: number): Promise<IProperty[]> {
     const properties = await Property.find().limit(limit).exec();
 

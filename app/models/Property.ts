@@ -22,6 +22,13 @@ const PropertySchema: Schema = new Schema(
       createdAt: Date,
       updatedAt: Date,
     },
+    services: [
+      {
+        id: Number,
+        name: String,
+        type: Number,
+      },
+    ],
     marketStats: {
       history: Array,
     },

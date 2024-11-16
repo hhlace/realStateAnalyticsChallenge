@@ -16,6 +16,11 @@ export interface IProperty {
     createdAt: Date;
     updatedAt: Date;
   };
+  services?: {
+    id: number;
+    name: string;
+    type: number;
+  }[];
   marketStats: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     history: any[];

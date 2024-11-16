@@ -11,6 +11,10 @@ export class PropertyService {
     return await this.propertyRepository.getPaginatedProperties(limit, page);
   }
 
+  async getAllFilters() {
+    return await this.propertyRepository.getAllFilterOptions();
+  }
+
   async getPropertyTypeData(maxPrice: number, minPrice: number) {
     const properties = await this.propertyRepository.getAggregatedProperties({
       filter: {
@@ -19,11 +23,7 @@ export class PropertyService {
       groupBy: "type",
       sort: { count: -1 },
     });
-    console.log(
-      "🚀 ~ PropertyService ~ getPropertyTypeData ~ properties:",
-      properties
-    );
-    const rawData = await this.propertyRepository.getPropertyTypeAggregation();
+
     return properties.map((item) => ({
       name: item.type || "Unknown",
       value: item.count,
