@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa"; // Import icons for dropdown
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 interface RangeFilterProps {
   label: string;
@@ -15,10 +15,24 @@ const RangeFilter: React.FC<RangeFilterProps> = ({
   onChange,
 }) => {
   const [openOptions, setOpenOptions] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleInputChange = (key: "min" | "max", value: string) => {
     const updatedRange = { ...range, [key]: value };
     onChange(updatedRange);
+    // Clear error message as the user edits the input
+    setErrorMessage(null);
+  };
+
+  const validateRange = () => {
+    const min = parseFloat(range.min);
+    const max = parseFloat(range.max);
+
+    if (min && max && min > max) {
+      setErrorMessage("Max must be highrer than min");
+    } else {
+      setErrorMessage(null);
+    }
   };
 
   return (
@@ -35,27 +49,34 @@ const RangeFilter: React.FC<RangeFilterProps> = ({
         )}
       </button>
       {openOptions && (
-        <div className="mt-2 flex gap-4">
-          <label className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Min:</span>
-            <input
-              type="number"
-              className="w-full rounded-md border-gray-200 shadow-sm sm:text-sm"
-              placeholder="Min"
-              value={range.min}
-              onChange={(e) => handleInputChange("min", e.target.value)}
-            />
-          </label>
-          <label className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Max:</span>
-            <input
-              type="number"
-              className="w-full rounded-md border-gray-200 shadow-sm sm:text-sm"
-              placeholder="Max"
-              value={range.max}
-              onChange={(e) => handleInputChange("max", e.target.value)}
-            />
-          </label>
+        <div className="mt-2">
+          <div className="flex gap-4">
+            <label className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Min:</span>
+              <input
+                type="number"
+                className="w-full rounded-md border-gray-200 shadow-sm sm:text-sm"
+                placeholder="Min"
+                value={range.min}
+                onChange={(e) => handleInputChange("min", e.target.value)}
+                onBlur={validateRange} // Validate on blur
+              />
+            </label>
+            <label className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Max:</span>
+              <input
+                type="number"
+                className="w-full rounded-md border-gray-200 shadow-sm sm:text-sm"
+                placeholder="Max"
+                value={range.max}
+                onChange={(e) => handleInputChange("max", e.target.value)}
+                onBlur={validateRange} // Validate on blur
+              />
+            </label>
+          </div>
+          {errorMessage && (
+            <p className="mt-2 text-sm text-red-600">{errorMessage}</p> // Display error message
+          )}
         </div>
       )}
     </fieldset>

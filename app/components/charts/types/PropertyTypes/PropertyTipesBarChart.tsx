@@ -13,8 +13,6 @@ const PropertyTypesBarChart: React.FC = async () => {
       <Suspense fallback={<ChartSkeleton />}>
         <PieChartComponent data={data} />
       </Suspense>
-      <input />
-      <input />
     </>
   );
 };
