@@ -86,7 +86,7 @@ const FilterButtons = forwardRef(
           onChange={(value) => handleFilterChange("price", value)}
         />
         <RangeFilter
-          label="Meters"
+          label="Mt2"
           range={filters.meters}
           onChange={(value) => handleFilterChange("meters", value)}
         />

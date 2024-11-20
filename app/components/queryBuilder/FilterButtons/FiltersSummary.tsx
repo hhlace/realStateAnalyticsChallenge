@@ -40,7 +40,7 @@ export const FiltersSummary: React.FC<{
         )}
         {(filters.meters.min || filters.meters.max) && (
           <FilterTag
-            label="Meters"
+            label="mt2"
             value={`${filters.meters.min || "Min"} - ${
               filters.meters.max || "Max"
             }`}
