@@ -7,7 +7,7 @@ interface PropertyTableProps {
 
 const PropertyTable: React.FC<PropertyTableProps> = ({
   properties,
-  itemsPerPage,
+  // itemsPerPage,
 }) => {
   // Render the properties
   return (

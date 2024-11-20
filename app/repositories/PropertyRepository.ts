@@ -1,4 +1,6 @@
 import { IProperty } from "../interfaces/Property";
+import { IFilters } from "../lib/utils";
+import { PipelineStage } from "mongoose";
 import Property, { PropertyDocument } from "../models/Property";
 
 export class PropertyRepository {
@@ -8,13 +10,13 @@ export class PropertyRepository {
   }
 
   async getAggregatedProperties({
-    filter = {}, // default to an empty object for no filtering
+    filter = {},
     groupBy,
     sort,
   }: {
-    filter?: Record<string, any>; // Allows multiple key-value pairs for filtering
+    filter?: Record<string, any>;
     groupBy: string;
-    sort?: Record<string, 1 | -1>; // Sorting can be ascending (1) or descending (-1)
+    sort?: Record<string, 1 | -1>;
   }) {
     const pipeline: any[] = [];
 
@@ -76,10 +78,97 @@ export class PropertyRepository {
           _id: 0,
         },
       },
-      { $sort: { count: -1 } },
+      { $sort: { count: -1 as 1 | -1 } },
     ]);
   }
 
+  async getAgentsByQuery(query: string) {
+    return await Property.aggregate([
+      {
+        $match: {
+          $or: [
+            { "agent.firstName": { $regex: query, $options: "i" } },
+            { "agent.lastName": { $regex: query, $options: "i" } },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: { firstName: "$agent.firstName", lastName: "$agent.lastName" },
+        },
+      },
+      {
+        $project: {
+          name: { $concat: ["$_id.firstName", " ", "$_id.lastName"] },
+          _id: 0,
+        },
+      },
+      { $sort: { name: 1 } },
+    ]);
+  }
+
+  async getAggregatedData(
+    filters: IFilters,
+    groupBy: string,
+    stats?: boolean
+  ): Promise<
+    Array<{
+      name: string | null;
+      count: number;
+      avgPrice?: number;
+      maxPrice?: number;
+      minPrice?: number;
+    }>
+  > {
+    // Transform filters into MongoDB-compatible format
+    const transformedFilters: Record<string, unknown> = Object.entries(
+      filters
+    ).reduce((acc, [key, value]) => {
+      if (key === "services" && Array.isArray(value) && value.length > 0) {
+        acc[key] = { $elemMatch: { name: { $in: value } } };
+      } else if (Array.isArray(value) && value.length > 0) {
+        acc[key] = { $in: value };
+      } else if (value) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+
+    // Define aggregation pipeline stages
+    const matchStage: PipelineStage.Match = { $match: transformedFilters };
+
+    const groupStage: PipelineStage.Group = {
+      $group: {
+        _id: `$${groupBy}`,
+        count: { $sum: 1 },
+        ...(stats && {
+          avgPrice: { $avg: "$listing.price.price" },
+          maxPrice: { $max: "$listing.price.price" },
+          minPrice: { $min: "$listing.price.price" },
+        }),
+      },
+    };
+
+    const projectStage: PipelineStage.Project = {
+      $project: {
+        name: "$_id",
+        count: 1,
+        avgPrice: stats ? 1 : undefined,
+        maxPrice: stats ? 1 : undefined,
+        minPrice: stats ? 1 : undefined,
+        _id: 0,
+      },
+    };
+
+    const pipeline: PipelineStage[] = [
+      matchStage,
+      groupStage,
+      projectStage,
+      { $sort: { count: -1 as 1 | -1 } },
+    ].filter((stage) => Object.keys(stage).length);
+
+    return Property.aggregate(pipeline);
+  }
   async getAllFilterOptions() {
     const types = await Property.distinct("type");
 

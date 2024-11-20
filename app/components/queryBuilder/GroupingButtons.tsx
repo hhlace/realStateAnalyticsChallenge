@@ -1,5 +1,3 @@
-import React from "react";
-
 interface GroupingButtonsProps {
   groupBy: string;
   setGroupBy: (value: string) => void;

@@ -1,5 +1,8 @@
+// components/PieChartComponent.tsx
 "use client";
+
 import { PieChart, Pie, ResponsiveContainer, Cell } from "recharts";
+import PieChartLegend from "./PieChartLegend";
 
 interface PieChartComponentProps {
   data: Array<{ name: string; value: number }>;
@@ -20,24 +23,31 @@ const PieChartComponent: React.FC<PieChartComponentProps> = ({
   width = "100%",
   height = 400,
 }) => {
-  // console.log("🚀 ~ data:", data);
+  const totalValue = data.reduce((acc, item) => acc + item.value, 0);
+
   return (
-    <ResponsiveContainer width={width} height={height}>
-      <PieChart>
-        <Pie
-          data={data}
-          dataKey={dataKey}
-          cx="50%"
-          cy="50%"
-          innerRadius={innerRadius}
-          outerRadius={outerRadius}
-        >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-          ))}
-        </Pie>
-      </PieChart>
-    </ResponsiveContainer>
+    <div className="flex">
+      <ResponsiveContainer width={width} height={height}>
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey={dataKey}
+            cx="50%"
+            cy="50%"
+            innerRadius={innerRadius}
+            outerRadius={outerRadius}
+          >
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={colors[index % colors.length]}
+              />
+            ))}
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+      <PieChartLegend data={data} colors={colors} totalValue={totalValue} />
+    </div>
   );
 };
 

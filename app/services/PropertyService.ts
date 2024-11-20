@@ -15,6 +15,10 @@ export class PropertyService {
     return await this.propertyRepository.getAllFilterOptions();
   }
 
+  async searchAgents(query: string) {
+    return this.propertyRepository.getAgentsByQuery(query);
+  }
+
   async getPropertyTypeData(maxPrice: number, minPrice: number) {
     const properties = await this.propertyRepository.getAggregatedProperties({
       filter: {

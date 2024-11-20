@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 const propertyRepository = new PropertyRepository();
 const propertyService = new PropertyService(propertyRepository);
 
-export async function GET(req: Request) {
+export async function GET() {
   await connectToDatabase();
 
   try {
