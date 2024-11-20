@@ -86,6 +86,8 @@ Mongoose for MongoDB queries
 
 ## Future Improvements
 
+Authentication.
+CSV Export.
 Normalize agent data to ensure unique \_ids and eliminate duplicates.
 Finish typing everything.
 Add a histogram chart to display property counts by price ranges.
